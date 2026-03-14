@@ -1,0 +1,121 @@
+# =============================================================================
+# Project-level configuration
+# =============================================================================
+
+project_name: "coi-select"
+version: "0.1.0"
+
+# ---------------------------------------------------------------------------
+# Dataset
+# ---------------------------------------------------------------------------
+dataset:
+  name: "persuasionforgood"
+  # URL for PersuasionForGood dataset
+  raw_dir: "data/raw/persuasionforgood"
+  processed_dir: "data/processed"
+  splits:
+    train: 0.8
+    dev: 0.1
+    test: 0.1
+  random_seed: 42
+
+# ---------------------------------------------------------------------------
+# Intent labeling
+# ---------------------------------------------------------------------------
+intent:
+  taxonomy_file: "configs/taxonomy.yaml"
+  # "rule" or "llm"
+  labeler: "rule"
+  llm_model: "gpt-3.5-turbo"
+  confidence_threshold: 0.5
+
+# ---------------------------------------------------------------------------
+# CoI graph
+# ---------------------------------------------------------------------------
+coi_graph:
+  laplace_smoothing: 1.0
+  ngram_sizes: [3, 4]
+  output_dir: "data/processed/coi_graph"
+
+# ---------------------------------------------------------------------------
+# Route consistency scoring weights
+# ---------------------------------------------------------------------------
+route_consistency:
+  weights:
+    edge_validity: 0.3
+    path_k_validity: 0.25
+    reachability: 0.25
+    prefix_validity: 0.2
+
+# ---------------------------------------------------------------------------
+# Simulator
+# ---------------------------------------------------------------------------
+simulator:
+  base_model: "facebook/opt-350m"
+  lora_r: 8
+  lora_alpha: 16
+  lora_dropout: 0.05
+  learning_rate: 2.0e-4
+  num_epochs: 3
+  batch_size: 4
+  max_length: 512
+  output_dir: "checkpoints/simulator"
+
+# ---------------------------------------------------------------------------
+# Synthetic pool generation
+# ---------------------------------------------------------------------------
+synthetic_pool:
+  num_dialogues: 3000
+  max_turns: 20
+  temperature: 0.8
+  top_p: 0.9
+  output_dir: "data/synthetic_pool"
+
+# ---------------------------------------------------------------------------
+# Evaluation
+# ---------------------------------------------------------------------------
+evaluation:
+  instance_metrics:
+    - style_similarity
+    - result_consistency
+    - route_consistency
+    - repetition_penalty
+    - length_sanity
+  global_metrics:
+    - kl_divergence
+    - js_divergence
+    - intent_coverage
+    - diversity
+    - turn_length_match
+    - outcome_ratio_match
+
+# ---------------------------------------------------------------------------
+# Selection
+# ---------------------------------------------------------------------------
+selection:
+  K: 500
+  M_ratio: 2.0  # M = K * M_ratio for CoI two-stage
+  monte_carlo_iterations: 1000
+  greedy_swap_iterations: 500
+
+# ---------------------------------------------------------------------------
+# Agent training
+# ---------------------------------------------------------------------------
+agent:
+  base_model: "facebook/opt-350m"
+  lora_r: 8
+  lora_alpha: 16
+  lora_dropout: 0.05
+  learning_rate: 2.0e-4
+  num_epochs: 3
+  batch_size: 4
+  max_length: 512
+  output_dir: "checkpoints/agent"
+
+# ---------------------------------------------------------------------------
+# Reward model (optional / enhancement)
+# ---------------------------------------------------------------------------
+reward_model:
+  enabled: false
+  base_model: "facebook/opt-350m"
+  output_dir: "checkpoints/rm"
