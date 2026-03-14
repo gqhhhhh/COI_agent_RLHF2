@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# Data files (raw data should be downloaded, not committed)
+data/raw/
+data/processed/
+data/synthetic_pool/
+data/selected/
+data/eval/
+
+# Model checkpoints
+checkpoints/
+models/
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Logs
+logs/
+wandb/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Output images (keep example ones)
+*.png
+!docs/*.png

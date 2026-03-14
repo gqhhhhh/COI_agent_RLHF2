@@ -1,0 +1,121 @@
+# =============================================================================
+# User Intent Taxonomy Configuration (CoI - Chain of Intention)
+# =============================================================================
+# This is the core taxonomy for user-side Chain-of-Intention (CoI).
+# The taxonomy is designed to be extensible: you can add new intents by
+# appending entries below without modifying any source code.
+# =============================================================================
+
+version: "1.0"
+name: "user_coi_7class"
+description: "7-class user intent taxonomy for goal-oriented dialogue CoI"
+
+# ---------------------------------------------------------------------------
+# Intent definitions
+# ---------------------------------------------------------------------------
+intents:
+  Inquiry:
+    id: 0
+    description: "User asks for information, clarification, or details."
+    examples:
+      - "How much should I donate?"
+      - "What does the charity do exactly?"
+      - "Can you tell me more about the program?"
+    boundary_notes: >
+      If the user asks a rhetorical question that expresses doubt, classify as
+      Concern instead. Pure information-seeking questions go here.
+
+  Positive:
+    id: 1
+    description: "User expresses interest, agreement, approval, or willingness to cooperate."
+    examples:
+      - "That sounds like a great cause."
+      - "I think I'd like to help."
+      - "Sure, I agree with that."
+    boundary_notes: >
+      Must show genuine positive attitude. Polite acknowledgements like 'okay'
+      without clear positive sentiment should be Neutral.
+
+  Concern:
+    id: 2
+    description: "User expresses hesitation, worry, doubt, or raises objections without outright refusing."
+    examples:
+      - "I'm not sure I can afford that."
+      - "But how do I know the money goes to the right place?"
+      - "That seems like a lot..."
+    boundary_notes: >
+      Different from Reject: Concern leaves the door open. If user says
+      'No, I won't do that', classify as Reject.
+
+  Reject:
+    id: 3
+    description: "User explicitly refuses, declines, or terminates the interaction goal."
+    examples:
+      - "No, I don't want to donate."
+      - "I'm not interested at all."
+      - "Please stop asking me."
+    boundary_notes: >
+      Must be an explicit refusal. Mild pushback is Concern.
+
+  Neutral:
+    id: 4
+    description: "Neutral response, small talk, acknowledgement without clear intent direction."
+    examples:
+      - "Okay."
+      - "I see."
+      - "Yeah, the weather is nice today."
+    boundary_notes: >
+      Use for responses that neither advance nor hinder the goal.
+      Greetings and farewells also go here unless they signal goal completion.
+
+  Action:
+    id: 5
+    description: "User takes a concrete goal-related action or commits to one."
+    examples:
+      - "I'll donate 1 dollar."
+      - "Let me sign up for that."
+      - "I've completed the form."
+    boundary_notes: >
+      Must involve an explicit commitment or execution of the target action.
+      Saying 'maybe I will' is Positive, not Action.
+
+  EndSuccess:
+    id: 6
+    description: "The interaction goal has been successfully completed."
+    examples:
+      - "Great, I've donated. Thanks!"
+      - "All done, glad I could help."
+    boundary_notes: >
+      Only use when the goal is verifiably completed. Positive sentiment
+      alone is not enough.
+
+# ---------------------------------------------------------------------------
+# Extensibility note
+# ---------------------------------------------------------------------------
+# To switch to a 9-class version, add intents below (e.g. Comparison,
+# Elaboration) and update the 'version' field. Code reads this file
+# dynamically so no source changes are needed.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Agent action taxonomy (auxiliary, not the CoI main line)
+# ---------------------------------------------------------------------------
+agent_actions:
+  Inform:
+    id: 0
+    description: "Agent provides information or answers a question."
+  Persuade:
+    id: 1
+    description: "Agent attempts to persuade or motivate the user."
+  Clarify:
+    id: 2
+    description: "Agent asks for clarification from the user."
+  Propose:
+    id: 3
+    description: "Agent proposes a concrete action to the user."
+  Acknowledge:
+    id: 4
+    description: "Agent acknowledges user's statement."
+  Close:
+    id: 5
+    description: "Agent wraps up the conversation."
