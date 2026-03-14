@@ -97,6 +97,14 @@ selection:
   M_ratio: 2.0  # M = K * M_ratio for CoI two-stage
   monte_carlo_iterations: 1000
   greedy_swap_iterations: 500
+  objective_weights:
+    kl_divergence: 1.0
+    js_divergence: 1.0
+    diversity: 2.0
+    intent_coverage: 1.0
+    transition_coverage: 1.0
+    outcome_ratio_match: 1.0
+    turn_length_match: 0.5
 
 # ---------------------------------------------------------------------------
 # Agent training

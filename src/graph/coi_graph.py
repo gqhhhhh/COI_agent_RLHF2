@@ -95,10 +95,15 @@ class CoIGraph:
                     self.path_ngrams[k].add(ngram)
 
         # Compute smoothed transition matrix
+        # Laplace smoothing ensures no zero rows; if a row is still zero
+        # (e.g., smoothing=0 and no observations), use uniform distribution.
         smoothed = self.count_matrix + self.laplace_smoothing
         row_sums = smoothed.sum(axis=1, keepdims=True)
+        zero_rows = (row_sums == 0).flatten()
         row_sums = np.where(row_sums == 0, 1, row_sums)
         self.transition_matrix = smoothed / row_sums
+        if np.any(zero_rows):
+            self.transition_matrix[zero_rows] = 1.0 / self.n
 
     def save(self, output_dir: str) -> None:
         """Save all graph artifacts to disk."""

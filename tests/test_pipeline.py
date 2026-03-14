@@ -432,9 +432,11 @@ class TestSelector:
 
         selected = selector.instance_top_k(pool, scores)
         assert len(selected) == 20
-        # Top-K should select highest scored
+        # Top-K should select the highest scored items
         selected_scores = [scores[i]["instance_score"] for i in selected]
-        assert min(selected_scores) >= 0.89  # top 20 out of 100
+        all_scores_sorted = sorted([s["instance_score"] for s in scores], reverse=True)
+        expected_min = all_scores_sorted[19]  # 20th highest score
+        assert min(selected_scores) >= expected_min
 
     def test_coi_selected_k(self):
         from src.graph.coi_graph import CoIGraph

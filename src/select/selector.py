@@ -36,6 +36,7 @@ class DataSelector:
         mc_iterations: int = 1000,
         greedy_iterations: int = 500,
         seed: int = 42,
+        objective_weights: Dict[str, float] | None = None,
     ):
         self.instance_eval = instance_evaluator
         self.global_eval = global_evaluator
@@ -44,6 +45,15 @@ class DataSelector:
         self.mc_iterations = mc_iterations
         self.greedy_iterations = greedy_iterations
         self.seed = seed
+        self._obj_weights = objective_weights or {
+            "kl_divergence": 1.0,
+            "js_divergence": 1.0,
+            "diversity": 2.0,
+            "intent_coverage": 1.0,
+            "transition_coverage": 1.0,
+            "outcome_ratio_match": 1.0,
+            "turn_length_match": 0.5,
+        }
 
     def random_k(
         self,
@@ -126,15 +136,15 @@ class DataSelector:
 
         metrics = self.global_eval.evaluate(subset_dialogues, subset_sequences)
 
-        # Objective: maximize this score
+        # Objective: maximize this score (weights configurable via constructor)
         score = (
-            - 1.0 * metrics["kl_divergence"]
-            - 1.0 * metrics["js_divergence"]
-            + 2.0 * metrics["diversity"]
-            + 1.0 * metrics["intent_coverage"]
-            + 1.0 * metrics["transition_coverage"]
-            + 1.0 * metrics["outcome_ratio_match"]
-            + 0.5 * metrics["turn_length_match"]
+            - self._obj_weights.get("kl_divergence", 1.0) * metrics["kl_divergence"]
+            - self._obj_weights.get("js_divergence", 1.0) * metrics["js_divergence"]
+            + self._obj_weights.get("diversity", 2.0) * metrics["diversity"]
+            + self._obj_weights.get("intent_coverage", 1.0) * metrics["intent_coverage"]
+            + self._obj_weights.get("transition_coverage", 1.0) * metrics["transition_coverage"]
+            + self._obj_weights.get("outcome_ratio_match", 1.0) * metrics["outcome_ratio_match"]
+            + self._obj_weights.get("turn_length_match", 0.5) * metrics["turn_length_match"]
         )
         return score
 

@@ -40,11 +40,14 @@ def prepare_training_data(
     return examples
 
 
-def train_simulator(config: Dict[str, Any] | None = None) -> None:
+def train_simulator(config: Dict[str, Any] | None = None) -> Dict[str, Any]:
     """Train the user simulator with LoRA.
 
     This function requires torch and transformers. It will gracefully degrade
     if GPU/model resources are not available.
+
+    Returns:
+        Training results dict with status and metadata.
     """
     if config is None:
         config = get_config()
@@ -52,16 +55,23 @@ def train_simulator(config: Dict[str, Any] | None = None) -> None:
     sim_cfg = config["simulator"]
     data_dir = config["dataset"]["processed_dir"]
 
+    results: Dict[str, Any] = {
+        "output_dir": sim_cfg["output_dir"],
+        "base_model": sim_cfg["base_model"],
+    }
+
     # Load training data
     train_path = os.path.join(data_dir, "train.jsonl")
     if not os.path.exists(train_path):
         print(f"[ERROR] Training data not found at {train_path}")
         print("[INFO] Run data preprocessing first: python scripts/run_phase1.py")
-        return
+        results["status"] = "error_no_data"
+        return results
 
     dialogues = load_jsonl(train_path)
     examples = prepare_training_data(dialogues, sim_cfg["max_length"])
     print(f"[INFO] Prepared {len(examples)} training examples for simulator")
+    results["num_examples"] = len(examples)
 
     # Save prepared data
     output_dir = sim_cfg["output_dir"]
@@ -138,10 +148,15 @@ def train_simulator(config: Dict[str, Any] | None = None) -> None:
         model.save_pretrained(output_dir)
         tokenizer.save_pretrained(output_dir)
         print(f"[INFO] Simulator saved to {output_dir}")
+        results["status"] = "completed"
 
     except ImportError as e:
         print(f"[WARN] Cannot train simulator (missing deps): {e}")
         print("[INFO] Skipping actual training. Data preparation completed.")
+        results["status"] = "skipped_missing_deps"
     except Exception as e:
         print(f"[WARN] Simulator training failed: {e}")
         print("[INFO] Data preparation completed. Fix the error and retry.")
+        results["status"] = f"failed: {str(e)}"
+
+    return results
